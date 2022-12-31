@@ -40,10 +40,7 @@ func New[T comparable](opts ...option[T]) *Value[T] {
 	return v
 }
 
-func (v *Value[T]) Set(value T) {
-	v.mutex.Lock()
-	defer v.mutex.Unlock()
-
+func (v *Value[T]) set(value T) {
 	old := v.value
 
 	if v.onSet != nil {
@@ -53,6 +50,18 @@ func (v *Value[T]) Set(value T) {
 	if v.onChanged != nil && old != value {
 		v.onChanged(old, value)
 	}
+}
+
+func (v *Value[T]) Set(value T) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+	v.set(value)
+}
+
+func (v *Value[T]) Operate(calcFunc func(old T) T) {
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
+	v.set(calcFunc(v.value))
 }
 
 func (v *Value[T]) Get() T {
