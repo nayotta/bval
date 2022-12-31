@@ -42,6 +42,7 @@ func New[T comparable](opts ...option[T]) *Value[T] {
 
 func (v *Value[T]) set(value T) {
 	old := v.value
+	v.value = value
 
 	if v.onSet != nil {
 		v.onSet(old, value)
